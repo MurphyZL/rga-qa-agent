@@ -1,0 +1,937 @@
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>系统问答智能体</title>
+        <style>
+            body {
+                margin: 0;
+                font-family: Arial, "Microsoft YaHei", sans-serif;
+                background: #f5f7fb;
+                color: #1f2d3d;
+            }
+
+            .page {
+                display: flex;
+                flex-direction: column;
+                min-height: 100vh;
+            }
+
+            .header {
+                padding: 14px 16px;
+                background: #1f7aff;
+                color: #fff;
+            }
+
+            .title {
+                font-size: 16px;
+                font-weight: 600;
+            }
+
+            .desc {
+                margin-top: 4px;
+                font-size: 12px;
+                opacity: 0.9;
+            }
+
+            .context-tip {
+                margin-top: 8px;
+                padding: 8px 10px;
+                border-radius: 6px;
+                background: rgba(255, 255, 255, 0.16);
+                font-size: 12px;
+                line-height: 1.5;
+            }
+
+            .context-tip--ok {
+                background: rgba(255, 255, 255, 0.12);
+            }
+
+            .main {
+                flex: 1;
+                display: flex;
+                min-height: 0;
+                flex-direction: column;
+                padding: 14px;
+                gap: 12px;
+            }
+
+            .result-panel {
+                flex: 1;
+                min-height: 0;
+                padding-bottom: 12px;
+                overflow-y: auto;
+            }
+
+            .input-panel {
+                position: sticky;
+                bottom: 0;
+                z-index: 2;
+                flex-shrink: 0;
+                padding-top: 12px;
+                border-top: 1px solid #e5eaf3;
+                background: #f5f7fb;
+            }
+
+            .quick-list {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-bottom: 12px;
+            }
+
+            .quick-btn {
+                border: 1px solid #d0d7e2;
+                border-radius: 16px;
+                padding: 6px 10px;
+                background: #fff;
+                color: #475467;
+                cursor: pointer;
+                font-size: 12px;
+            }
+
+            .quick-btn:disabled {
+                cursor: not-allowed;
+                opacity: 0.6;
+            }
+
+            textarea {
+                box-sizing: border-box;
+                width: 100%;
+                min-height: 96px;
+                border: 1px solid #d0d7e2;
+                border-radius: 6px;
+                padding: 10px;
+                resize: vertical;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+
+            textarea:disabled {
+                background: #f2f5f9;
+                cursor: not-allowed;
+            }
+
+            .actions {
+                display: flex;
+                justify-content: flex-end;
+                margin-top: 10px;
+            }
+
+            .ask-btn {
+                border: 0;
+                border-radius: 6px;
+                padding: 9px 16px;
+                background: #1f7aff;
+                color: #fff;
+                cursor: pointer;
+            }
+
+            .ask-btn:disabled {
+                cursor: not-allowed;
+                opacity: 0.6;
+            }
+
+            .chat-list {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .chat-message {
+                max-width: 88%;
+                padding: 10px 12px;
+                border-radius: 8px;
+                line-height: 1.7;
+                font-size: 13px;
+                box-shadow: 0 2px 8px rgba(15, 35, 65, 0.08);
+            }
+
+            .chat-message--user {
+                align-self: flex-end;
+                background: #1f7aff;
+                color: #fff;
+                white-space: pre-wrap;
+            }
+
+            .chat-message--assistant {
+                align-self: flex-start;
+                background: #fff;
+            }
+
+            .markdown-body {
+                overflow-wrap: anywhere;
+            }
+
+            .markdown-body > *:first-child {
+                margin-top: 0;
+            }
+
+            .markdown-body > *:last-child {
+                margin-bottom: 0;
+            }
+
+            .markdown-body h1,
+            .markdown-body h2,
+            .markdown-body h3,
+            .markdown-body h4 {
+                margin: 12px 0 8px;
+                font-size: 14px;
+                font-weight: 600;
+                line-height: 1.5;
+            }
+
+            .markdown-body p {
+                margin: 0 0 8px;
+            }
+
+            .markdown-body ul,
+            .markdown-body ol {
+                margin: 0 0 8px;
+                padding-left: 20px;
+            }
+
+            .markdown-body li {
+                margin: 2px 0;
+            }
+
+            .markdown-body strong {
+                font-weight: 600;
+            }
+
+            .markdown-body code {
+                padding: 1px 4px;
+                border-radius: 4px;
+                background: #f2f5f9;
+                font-family: Consolas, "Courier New", monospace;
+                font-size: 12px;
+            }
+
+            .markdown-body pre {
+                margin: 0 0 8px;
+                padding: 8px 10px;
+                overflow-x: auto;
+                border-radius: 6px;
+                background: #f2f5f9;
+            }
+
+            .markdown-body pre code {
+                padding: 0;
+                background: transparent;
+            }
+
+            .markdown-body blockquote {
+                margin: 0 0 8px;
+                padding-left: 10px;
+                border-left: 3px solid #d0d7e2;
+                color: #5d6b7c;
+            }
+
+            .markdown-body table {
+                width: 100%;
+                margin: 0 0 8px;
+                border-collapse: collapse;
+            }
+
+            .markdown-body th,
+            .markdown-body td {
+                border: 1px solid #e5eaf3;
+                padding: 6px 8px;
+                text-align: left;
+            }
+
+            .markdown-body hr {
+                margin: 10px 0;
+                border: 0;
+                border-top: 1px solid #e5eaf3;
+            }
+
+            .markdown-body img,
+            .answer-images img,
+            .source-images img {
+                display: block;
+                max-width: 100%;
+                height: auto;
+                margin: 8px 0;
+                border-radius: 6px;
+                border: 1px solid #e5eaf3;
+                cursor: zoom-in;
+            }
+
+            .image-preview {
+                display: none;
+                position: fixed;
+                inset: 0;
+                z-index: 40;
+                align-items: center;
+                justify-content: center;
+                background: rgba(15, 23, 42, 0.72);
+            }
+
+            .image-preview.is-open {
+                display: flex;
+            }
+
+            .image-preview__img {
+                max-width: 92vw;
+                max-height: 88vh;
+                object-fit: contain;
+                border-radius: 6px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+                cursor: zoom-out;
+            }
+
+            .image-preview__close {
+                position: absolute;
+                top: 16px;
+                right: 16px;
+                border: 0;
+                border-radius: 4px;
+                padding: 6px 10px;
+                background: #fff;
+                color: #1f2d3d;
+                cursor: pointer;
+                font-size: 13px;
+            }
+
+            .answer-images {
+                margin-top: 10px;
+            }
+
+            .answer-images__caption,
+            .source-images__caption {
+                color: #7a8799;
+                font-size: 12px;
+                margin: -4px 0 8px;
+            }
+
+            .sources {
+                margin-top: 10px;
+            }
+
+            .source-item {
+                margin-top: 8px;
+                padding: 10px;
+                border: 1px solid #e5eaf3;
+                border-radius: 6px;
+                background: #fff;
+                color: #667085;
+                line-height: 1.6;
+                font-size: 12px;
+            }
+
+            .feedback-bar {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-top: 10px;
+            }
+
+            .feedback-btn {
+                border: 1px solid #d0d7e2;
+                border-radius: 4px;
+                padding: 4px 10px;
+                background: #fff;
+                color: #475467;
+                cursor: pointer;
+                font-size: 12px;
+            }
+
+            .feedback-btn:disabled {
+                cursor: not-allowed;
+                opacity: 0.6;
+            }
+
+            .feedback-btn--active {
+                border-color: #1f7aff;
+                color: #1f7aff;
+            }
+
+            .feedback-status {
+                color: #7a8799;
+                font-size: 12px;
+            }
+
+            .chat-message--hidden {
+                color: #7a8799;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="page">
+            <div class="header">
+                <div class="title">系统问答智能体</div>
+                <div class="desc">DeepSeek + bge-m3 + bge-reranker-v2-m3 + Qdrant</div>
+                <div id="contextTip" class="context-tip">请从中台打开 AI 面板，等待用户上下文同步后再提问。</div>
+            </div>
+            <div class="main">
+                <div class="result-panel" id="resultPanel">
+                    <div id="chatList" class="chat-list"></div>
+                </div>
+                <div class="input-panel">
+                    <div class="quick-list" id="quickList"></div>
+                    <textarea id="question" placeholder="请输入和系统有关的问题" disabled></textarea>
+                    <div class="actions">
+                        <button id="askBtn" class="ask-btn" disabled>提问</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="imagePreview" class="image-preview" hidden>
+            <button id="imagePreviewClose" class="image-preview__close" type="button">关闭</button>
+            <img id="imagePreviewImg" class="image-preview__img" alt="配图预览" />
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/marked@15.0.7/marked.min.js"></script>
+        <script>
+            // 允许接收用户上下文的父页面来源。嵌入中台 iframe 时优先信任 window.parent。
+            const ALLOWED_PARENT_ORIGINS = [
+                'http://127.0.0.1:8080',
+                'http://localhost:8080',
+                'http://127.0.0.1:8010',
+                'http://localhost:8010'
+            ];
+
+            const quickList = document.getElementById('quickList');
+            const questionInput = document.getElementById('question');
+            const askBtn = document.getElementById('askBtn');
+            const resultPanel = document.getElementById('resultPanel');
+            const chatList = document.getElementById('chatList');
+            const contextTip = document.getElementById('contextTip');
+            const imagePreview = document.getElementById('imagePreview');
+            const imagePreviewImg = document.getElementById('imagePreviewImg');
+            const imagePreviewClose = document.getElementById('imagePreviewClose');
+            const chatHistory = [];
+
+            // 服务端注入的试运行 Token，与 .env 中 AI_AGENT_API_TOKEN 保持一致。
+            const SERVER_API_TOKEN = '__AI_AGENT_API_TOKEN__';
+            // 由中台 AiDemoPanel 通过 postMessage 注入的真实用户上下文。
+            let userContext = null;
+
+            // 加载最近热门问题作为底部快捷入口。
+            async function loadHotQuestions() {
+                try {
+                    const response = await fetch('/api/hot-questions?limit=4', { cache: 'no-store' });
+                    const data = await response.json();
+                    renderQuickQuestions(Array.isArray(data.questions) ? data.questions : []);
+                } catch (error) {
+                    renderQuickQuestions([]);
+                }
+            }
+
+            // 渲染快捷问题按钮，并按当前登录状态控制是否可点。
+            function renderQuickQuestions(questions) {
+                quickList.innerHTML = '';
+                questions.forEach(question => {
+                    const button = document.createElement('button');
+                    button.className = 'quick-btn';
+                    button.innerText = question;
+                    button.onclick = () => {
+                        questionInput.value = question;
+                        doAsk();
+                    };
+                    quickList.appendChild(button);
+                });
+                updateContextUi();
+            }
+
+            loadHotQuestions();
+            setInterval(loadHotQuestions, 120000);
+            askBtn.onclick = doAsk;
+            imagePreview.onclick = event => {
+                if (event.target === imagePreview || event.target === imagePreviewImg) {
+                    closeImagePreview();
+                }
+            };
+            imagePreviewClose.onclick = closeImagePreview;
+            document.addEventListener('keydown', event => {
+                if (event.key === 'Escape') {
+                    closeImagePreview();
+                }
+            });
+            window.addEventListener('message', handleParentMessage);
+            notifyParentReady();
+            updateContextUi();
+
+            // 通知中台父页面：iframe 已就绪，请立即推送用户上下文。
+            function notifyParentReady() {
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({ type: 'QA_IFRAME_READY' }, '*');
+                }
+            }
+
+            // 判断消息是否来自可信任的中台父页面。
+            function isTrustedParentMessage(event) {
+                if (!event || !event.data || event.data.type !== 'QA_USER_CONTEXT') {
+                    return false;
+                }
+                if (window.parent && event.source === window.parent) {
+                    return true;
+                }
+                if (ALLOWED_PARENT_ORIGINS.includes(event.origin)) {
+                    return true;
+                }
+                try {
+                    const host = new URL(event.origin).hostname;
+                    if (host === 'localhost' || host === '127.0.0.1') {
+                        return true;
+                    }
+                    // 正式环境的父页面域名请写入 ALLOWED_PARENT_ORIGINS，不要在这里写死公司域名。
+                } catch (error) {
+                    return false;
+                }
+                return false;
+            }
+
+            // 接收中台透传的用户上下文与 API Token。
+            function handleParentMessage(event) {
+                if (!isTrustedParentMessage(event)) {
+                    return;
+                }
+                const data = event.data || {};
+                userContext = {
+                    apiToken: String(data.apiToken || ''),
+                    userId: String(data.userId || data.jobNo || ''),
+                    userName: String(data.userName || ''),
+                    roleIds: Array.isArray(data.roleIds) ? data.roleIds.map(String) : [],
+                    menuPermissions: Array.isArray(data.menuPermissions) ? data.menuPermissions.map(String) : [],
+                    buttonPermissions: Array.isArray(data.buttonPermissions) ? data.buttonPermissions.map(String) : [],
+                    routeName: data.routeName || '',
+                    routePath: data.routePath || '',
+                    pageTitle: String(data.pageTitle || '')
+                };
+                updateContextUi();
+            }
+
+            // 问答接口鉴权只使用服务端当前 Token，不使用中台 localStorage 旧值。
+            let serverApiToken =
+                SERVER_API_TOKEN && SERVER_API_TOKEN.indexOf('__AI_AGENT_API_TOKEN__') !== 0 ? SERVER_API_TOKEN : '';
+
+            // 每次提问前向服务端读取最新 Token。
+            async function ensureServerToken() {
+                const response = await fetch('/api/client-config', { cache: 'no-store' });
+                const data = await response.json();
+                serverApiToken = String(data.apiToken || '');
+                return serverApiToken;
+            }
+
+            function getApiToken() {
+                return serverApiToken;
+            }
+
+            ensureServerToken().then(updateContextUi);
+
+            // 根据是否已拿到上下文，控制输入区可用状态。
+            function updateContextUi() {
+                const ready = Boolean(userContext && userContext.userId && getApiToken());
+                questionInput.disabled = !ready;
+                askBtn.disabled = !ready;
+                Array.from(quickList.querySelectorAll('button')).forEach(button => {
+                    button.disabled = !ready;
+                });
+                if (!userContext) {
+                    contextTip.classList.remove('context-tip--ok');
+                    contextTip.innerText = '请从中台打开 AI 面板，等待用户上下文同步后再提问。';
+                    return;
+                }
+                if (!userContext.userId) {
+                    contextTip.classList.remove('context-tip--ok');
+                    contextTip.innerText = '已收到中台消息，但缺少用户工号。请确认已登录中台。';
+                    return;
+                }
+                const displayName = userContext.userName || userContext.userId;
+                const pageTitle = userContext.pageTitle || '当前页面';
+                if (!getApiToken()) {
+                    contextTip.classList.remove('context-tip--ok');
+                    contextTip.innerText = `已同步用户 ${displayName}，但服务未配置 AI_AGENT_API_TOKEN，请检查 .env。`;
+                    return;
+                }
+                contextTip.classList.add('context-tip--ok');
+                contextTip.innerText = `已同步用户 ${displayName}，当前页 ${pageTitle}`;
+            }
+
+            // 构造带 Token 的请求头。
+            function buildAuthHeaders() {
+                const token = getApiToken();
+                return {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                    'X-AI-Agent-Token': token
+                };
+            }
+
+            // 调用系统问答接口。
+            async function doAsk() {
+                await ensureServerToken();
+                if (!userContext || !userContext.userId || !getApiToken()) {
+                    appendAssistantMessage('请从中台打开 AI 面板，等待用户上下文同步后再提问。');
+                    return;
+                }
+
+                const question = questionInput.value.trim();
+                if (!question) {
+                    appendAssistantMessage('请先输入问题。');
+                    return;
+                }
+
+                const history = buildRequestHistory();
+                appendUserMessage(question);
+                questionInput.value = '';
+                appendAssistantMessage('正在检索知识并调用大模型生成回答...');
+                askBtn.disabled = true;
+                askBtn.innerText = '思考中...';
+
+                try {
+                    const response = await fetch('/api/ask', {
+                        method: 'POST',
+                        headers: buildAuthHeaders(),
+                        body: JSON.stringify({
+                            question,
+                            history,
+                            routeName: userContext.routeName,
+                            routePath: userContext.routePath,
+                            userId: userContext.userId,
+                            roleIds: userContext.roleIds,
+                            menuPermissions: userContext.menuPermissions,
+                            buttonPermissions: userContext.buttonPermissions
+                        })
+                    });
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(formatErrorDetail(data.detail) || '请求失败');
+                    }
+
+                    updateLastAssistantMessage(data.answer, data.sources || []);
+                    loadHotQuestions();
+                } catch (error) {
+                    updateLastAssistantMessage(`请求失败：${error.message}`, []);
+                } finally {
+                    askBtn.disabled = !userContext;
+                    askBtn.innerText = '提问';
+                    updateContextUi();
+                }
+            }
+
+            // 追加用户消息，用于在页面上保留完整问答轨迹。
+            function appendUserMessage(content) {
+                chatHistory.push({ role: 'user', content, sources: [], feedbackStatus: '' });
+                renderChatHistory();
+            }
+
+            // 追加 AI 消息，占位内容会在接口返回后被真实答案替换。
+            function appendAssistantMessage(content) {
+                chatHistory.push({ role: 'assistant', content, sources: [], feedbackStatus: '' });
+                renderChatHistory();
+            }
+
+            // 更新最近一条 AI 消息，保留该轮回答对应的来源信息。
+            function updateLastAssistantMessage(content, sources) {
+                const lastMessage = chatHistory[chatHistory.length - 1];
+                if (lastMessage && lastMessage.role === 'assistant') {
+                    lastMessage.content = content;
+                    lastMessage.sources = sources;
+                    lastMessage.feedbackStatus = '';
+                }
+                renderChatHistory();
+            }
+
+            // 构建发送给后端的最近对话历史，避免一次性传入过多内容。
+            function buildRequestHistory() {
+                return chatHistory.slice(-6).map(message => ({
+                    role: message.role,
+                    content: message.content
+                }));
+            }
+
+            // 查找指定 AI 回答对应的用户问题。
+            function findQuestionForAssistant(index) {
+                for (let i = index - 1; i >= 0; i -= 1) {
+                    if (chatHistory[i].role === 'user') {
+                        return chatHistory[i].content;
+                    }
+                }
+                return '';
+            }
+
+            // 提交点赞或倒赞反馈。
+            async function submitFeedback(index, feedbackType) {
+                await ensureServerToken();
+                if (!userContext || !userContext.userId || !getApiToken()) {
+                    appendAssistantMessage('请从中台打开 AI 面板后再提交反馈。');
+                    return;
+                }
+
+                const message = chatHistory[index];
+                if (!message || message.role !== 'assistant' || message.feedbackStatus) {
+                    return;
+                }
+
+                const question = findQuestionForAssistant(index);
+                if (!question || !message.content) {
+                    return;
+                }
+
+                message.feedbackStatus = 'submitting';
+                renderChatHistory();
+
+                try {
+                    const response = await fetch(`/api/feedback/${feedbackType}`, {
+                        method: 'POST',
+                        headers: buildAuthHeaders(),
+                        body: JSON.stringify({
+                            feedbackType,
+                            question,
+                            answer: message.content,
+                            history: buildRequestHistory(),
+                            sources: message.sources || [],
+                            routeName: userContext.routeName,
+                            routePath: userContext.routePath,
+                            userId: userContext.userId
+                        })
+                    });
+                    const data = await response.json();
+                    if (!response.ok) {
+                        throw new Error(formatErrorDetail(data.detail) || '反馈失败');
+                    }
+                    message.feedbackStatus = feedbackType;
+                } catch (error) {
+                    message.feedbackStatus = '';
+                    appendAssistantMessage(`反馈失败：${error.message}`);
+                }
+                renderChatHistory();
+            }
+
+            // 渲染历史问答列表，让上方区域像常见 AI 对话一样持续展示上下文。
+            function renderChatHistory() {
+                chatList.innerHTML = '';
+                chatHistory.forEach((message, index) => {
+                    const item = document.createElement('div');
+                    item.className = `chat-message chat-message--${message.role}`;
+
+                    if (message.role === 'assistant' && message.feedbackStatus === 'dislike') {
+                        item.classList.add('chat-message--hidden');
+                        item.innerText = '该回答已标记为不推荐，已从当前对话隐藏。';
+                        chatList.appendChild(item);
+                        return;
+                    }
+
+                    if (message.role === 'assistant') {
+                        item.appendChild(renderMarkdown(message.content));
+                        const answerImages = collectSourceImages(message.sources || []);
+                        if (answerImages.length) {
+                            item.appendChild(renderImageList(answerImages, 'answer-images'));
+                        }
+                    } else {
+                        item.innerText = message.content;
+                    }
+
+                    if (message.role === 'assistant' && message.sources && message.sources.length) {
+                        item.appendChild(renderSources(message.sources));
+                    }
+
+                    if (message.role === 'assistant' && canShowFeedback(message)) {
+                        item.appendChild(renderFeedbackBar(index, message));
+                    }
+
+                    chatList.appendChild(item);
+                });
+                scrollResultToBottom();
+            }
+
+            // 把 AI 回答按 Markdown 渲染成 HTML，避免页面直接显示 **、#、- 等符号。
+            function renderMarkdown(text) {
+                const content = document.createElement('div');
+                content.className = 'markdown-body';
+                content.innerHTML = marked.parse(text || '', {
+                    gfm: true,
+                    breaks: true
+                });
+                bindImagePreview(content);
+                return content;
+            }
+
+            // 打开配图放大预览。
+            function openImagePreview(url, altText) {
+                if (!url) {
+                    return;
+                }
+                imagePreviewImg.src = url;
+                imagePreviewImg.alt = altText || '配图预览';
+                imagePreview.hidden = false;
+                imagePreview.classList.add('is-open');
+            }
+
+            // 关闭配图放大预览。
+            function closeImagePreview() {
+                imagePreview.classList.remove('is-open');
+                imagePreview.hidden = true;
+                imagePreviewImg.src = '';
+            }
+
+            // 给区域内的图片绑定点击放大。
+            function bindImagePreview(root) {
+                Array.from(root.querySelectorAll('img')).forEach(img => {
+                    img.onclick = () => openImagePreview(img.src, img.alt);
+                });
+            }
+
+            // 判断当前 AI 回答是否可以展示反馈按钮。
+            function canShowFeedback(message) {
+                if (message.role !== 'assistant') {
+                    return false;
+                }
+                if (!message.content) {
+                    return false;
+                }
+                // 占位、提示和错误消息不参与反馈。
+                const skipPrefixes = [
+                    '正在检索知识',
+                    '请先输入问题',
+                    '请从中台打开',
+                    '请求失败',
+                    '反馈失败',
+                    '当前知识库没有找到明确答案'
+                ];
+                return !skipPrefixes.some(prefix => message.content.indexOf(prefix) === 0);
+            }
+
+            // 渲染点赞和倒赞按钮。
+            function renderFeedbackBar(index, message) {
+                const bar = document.createElement('div');
+                bar.className = 'feedback-bar';
+
+                const likeBtn = document.createElement('button');
+                likeBtn.type = 'button';
+                likeBtn.className = 'feedback-btn';
+                likeBtn.innerText = '点赞';
+                likeBtn.disabled = Boolean(message.feedbackStatus);
+                if (message.feedbackStatus === 'like') {
+                    likeBtn.classList.add('feedback-btn--active');
+                }
+                likeBtn.onclick = () => submitFeedback(index, 'like');
+
+                const dislikeBtn = document.createElement('button');
+                dislikeBtn.type = 'button';
+                dislikeBtn.className = 'feedback-btn';
+                dislikeBtn.innerText = '倒赞';
+                dislikeBtn.disabled = Boolean(message.feedbackStatus);
+                dislikeBtn.onclick = () => submitFeedback(index, 'dislike');
+
+                bar.appendChild(likeBtn);
+                bar.appendChild(dislikeBtn);
+
+                if (message.feedbackStatus === 'like') {
+                    const status = document.createElement('span');
+                    status.className = 'feedback-status';
+                    status.innerText = '已提交审核';
+                    bar.appendChild(status);
+                } else if (message.feedbackStatus === 'submitting') {
+                    const status = document.createElement('span');
+                    status.className = 'feedback-status';
+                    status.innerText = '提交中...';
+                    bar.appendChild(status);
+                }
+
+                return bar;
+            }
+
+            // 回答更新后滚动到最新消息，避免用户手动拖动上方结果区。
+            function scrollResultToBottom() {
+                resultPanel.scrollTop = resultPanel.scrollHeight;
+            }
+
+            // 统一解析 FastAPI 错误详情。
+            function formatErrorDetail(detail) {
+                if (!detail) {
+                    return '';
+                }
+                if (typeof detail === 'string') {
+                    return detail;
+                }
+                if (Array.isArray(detail)) {
+                    return detail.map(item => item.msg || JSON.stringify(item)).join('; ');
+                }
+                return JSON.stringify(detail);
+            }
+
+            // 从检索来源收集配图，按 URL 去重后交给页面展示。
+            function collectSourceImages(sources) {
+                const images = [];
+                const seen = new Set();
+                (sources || []).forEach(source => {
+                    (source.images || []).forEach(image => {
+                        const url = image && image.url ? String(image.url) : '';
+                        if (!url || seen.has(url) || !isSafeImageUrl(url)) {
+                            return;
+                        }
+                        seen.add(url);
+                        images.push({
+                            url,
+                            caption: image.caption || ''
+                        });
+                    });
+                });
+                return images;
+            }
+
+            // 只展示本服务托管的知识配图，避免渲染外部或脚本地址。
+            function isSafeImageUrl(url) {
+                return url.indexOf('/knowledge-images/') === 0;
+            }
+
+            // 渲染配图列表。
+            function renderImageList(images, className) {
+                const box = document.createElement('div');
+                box.className = className;
+                images.forEach(image => {
+                    const img = document.createElement('img');
+                    img.src = image.url;
+                    img.alt = image.caption || '知识配图';
+                    img.onclick = () => openImagePreview(img.src, img.alt);
+                    box.appendChild(img);
+                    if (image.caption) {
+                        const caption = document.createElement('div');
+                        caption.className = `${className}__caption`;
+                        caption.innerText = image.caption;
+                        box.appendChild(caption);
+                    }
+                });
+                return box;
+            }
+
+            // 渲染来源，便于检查回答依据。
+            function renderSources(sources) {
+                const sourcesBox = document.createElement('div');
+                sourcesBox.className = 'sources';
+
+                if (!sources.length) {
+                    sourcesBox.innerHTML = '<div class="source-item">暂无来源。</div>';
+                    return sourcesBox;
+                }
+
+                sources.forEach(source => {
+                    const item = document.createElement('div');
+                    item.className = 'source-item';
+                    const title = document.createElement('strong');
+                    title.innerText = source.question || '';
+                    item.appendChild(title);
+                    const meta = document.createElement('div');
+                    const imageCount = (source.images || []).length;
+                    meta.innerText = [
+                        `模块：${source.module || ''}`,
+                        `路径：${source.menuPath || ''}`,
+                        `来源：${source.source || ''}`,
+                        `更新时间：${source.updatedAt || ''}`,
+                        `向量分：${Number(source.score || 0).toFixed(4)}`,
+                        imageCount ? `配图：${imageCount} 张` : '配图：无'
+                    ].join('\n');
+                    item.appendChild(meta);
+                    sourcesBox.appendChild(item);
+                });
+                return sourcesBox;
+            }
+        </script>
+    </body>
+</html>

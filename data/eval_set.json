@@ -1,0 +1,113 @@
+[
+    {
+        "id": "eval-01",
+        "question": "销售订单怎么创建？",
+        "expectReject": false,
+        "expectedKnowledgeIds": [
+            "qa-001"
+        ],
+        "category": "core"
+    },
+    {
+        "id": "eval-02",
+        "question": "我看不到某个按钮？",
+        "expectReject": false,
+        "expectedKnowledgeIds": [
+            "qa-002"
+        ],
+        "category": "core"
+    },
+    {
+        "id": "eval-03",
+        "question": "系统帮助文档在哪里维护？",
+        "expectReject": false,
+        "expectedKnowledgeIds": [
+            "qa-003"
+        ],
+        "category": "core"
+    },
+    {
+        "id": "eval-04",
+        "question": "客服历史问答能不能直接进入知识库？",
+        "expectReject": false,
+        "expectedKnowledgeIds": [
+            "qa-004"
+        ],
+        "category": "core"
+    },
+    {
+        "id": "eval-05",
+        "question": "智能体回答应该包含哪些内容？",
+        "expectReject": false,
+        "expectedKnowledgeIds": [
+            "qa-005"
+        ],
+        "category": "core"
+    },
+    {
+        "id": "eval-06",
+        "question": "怎么新建销售单",
+        "expectReject": false,
+        "expectedKnowledgeIds": [
+            "qa-001"
+        ],
+        "category": "core"
+    },
+    {
+        "id": "eval-07",
+        "question": "按钮不显示怎么办",
+        "expectReject": false,
+        "expectedKnowledgeIds": [
+            "qa-002"
+        ],
+        "category": "core"
+    },
+    {
+        "id": "eval-08",
+        "question": "帮助中心怎么维护",
+        "expectReject": false,
+        "expectedKnowledgeIds": [
+            "qa-003"
+        ],
+        "category": "core"
+    },
+    {
+        "id": "eval-09",
+        "question": "客服问答怎么导入知识库",
+        "expectReject": false,
+        "expectedKnowledgeIds": [
+            "qa-004"
+        ],
+        "category": "core"
+    },
+    {
+        "id": "eval-10",
+        "question": "智能体回答格式有哪些部分",
+        "expectReject": false,
+        "expectedKnowledgeIds": [
+            "qa-005"
+        ],
+        "category": "core"
+    },
+    {
+        "id": "eval-11",
+        "question": "今天天气怎么样",
+        "expectReject": true,
+        "expectedKnowledgeIds": [],
+        "category": "reject"
+    },
+    {
+        "id": "eval-12",
+        "question": "帮我写一首关于春天的诗",
+        "expectReject": true,
+        "expectedKnowledgeIds": [],
+        "category": "reject"
+    },
+    {
+        "id": "eval-13",
+        "question": "如何做红烧肉",
+        "expectReject": true,
+        "expectedKnowledgeIds": [],
+        "category": "reject"
+    }
+]

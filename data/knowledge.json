@@ -1,0 +1,135 @@
+[
+    {
+        "id": "qa-001",
+        "question": "销售订单怎么创建？",
+        "answer": "进入销售管理 > 订单管理 > 销售订单，点击新建，选择客户、门店和商品，确认金额后提交。提交后订单会进入后续审核或履约流程，具体以当前系统配置为准。",
+        "module": "销售管理",
+        "menuPath": "销售管理 > 订单管理 > 销售订单",
+        "roles": [
+            "销售",
+            "店长"
+        ],
+        "permissionCodes": [
+            "salesOrder",
+            "salesOrderCreate"
+        ],
+        "source": "销售管理 Q&A 样例",
+        "updatedAt": "2026-07-15",
+        "trustLevel": "verified",
+        "keywords": [
+            "销售订单",
+            "新建订单",
+            "开单"
+        ],
+        "similarQuestions": [
+            "怎么新建销售单",
+            "订单在哪里新增",
+            "如何开销售订单"
+        ]
+    },
+    {
+        "id": "qa-002",
+        "question": "我看不到某个按钮？",
+        "answer": "按钮是否展示通常由当前账号的菜单权限和按钮权限控制。如果同一页面其他人能看到该按钮，而当前账号看不到，通常需要联系管理员检查角色是否包含对应按钮权限。",
+        "module": "系统配置",
+        "menuPath": "系统配置 > 系统维护 > 角色编辑",
+        "roles": [
+            "管理员"
+        ],
+        "permissionCodes": [
+            "systemMaintenance",
+            "editRole"
+        ],
+        "source": "系统权限说明样例",
+        "updatedAt": "2026-07-15",
+        "trustLevel": "verified",
+        "keywords": [
+            "按钮权限",
+            "菜单权限",
+            "角色"
+        ],
+        "similarQuestions": [
+            "按钮不显示怎么办",
+            "为什么没有新增按钮",
+            "看不到操作入口"
+        ]
+    },
+    {
+        "id": "qa-003",
+        "question": "系统帮助文档在哪里维护？",
+        "answer": "系统帮助文档在系统配置 > 系统配置 > 帮助文档中维护。维护时需要选择关联菜单、问题分类、问题和答案，保存后可作为系统内帮助和智能问答知识来源。",
+        "module": "系统配置",
+        "menuPath": "系统配置 > 系统配置 > 帮助文档",
+        "roles": [
+            "管理员",
+            "运营"
+        ],
+        "permissionCodes": [
+            "helpWord"
+        ],
+        "source": "系统帮助文档样例",
+        "updatedAt": "2026-07-15",
+        "trustLevel": "verified",
+        "keywords": [
+            "帮助文档",
+            "FAQ",
+            "知识维护"
+        ],
+        "similarQuestions": [
+            "帮助中心怎么维护",
+            "问题答案在哪里配置",
+            "系统 FAQ 在哪里新增"
+        ]
+    },
+    {
+        "id": "qa-004",
+        "question": "客服历史问答能不能直接进入知识库？",
+        "answer": "客服历史问答可以作为候选知识来源，但不建议直接作为标准答案。需要先脱敏、去重、清洗，再由业务审核确认后进入正式知识库。",
+        "module": "智能问答",
+        "menuPath": "知识运营 > 问答审核",
+        "roles": [
+            "运营",
+            "客服主管"
+        ],
+        "permissionCodes": [
+            "knowledgeReview"
+        ],
+        "source": "AI 问答方案样例",
+        "updatedAt": "2026-07-15",
+        "trustLevel": "verified",
+        "keywords": [
+            "客服问答",
+            "知识审核",
+            "脱敏"
+        ],
+        "similarQuestions": [
+            "客服问答怎么导入知识库",
+            "历史问答能导入吗",
+            "未审核问答能不能直接用"
+        ]
+    },
+    {
+        "id": "qa-005",
+        "question": "智能体回答应该包含哪些内容？",
+        "answer": "回答包含结论、操作路径、操作步骤、权限说明、注意事项和参考来源。没有明确来源时，应提示当前知识库没有找到明确答案。",
+        "module": "智能问答",
+        "menuPath": "智能助手 > 问答规范",
+        "roles": [
+            "全部用户"
+        ],
+        "permissionCodes": [],
+        "source": "AI 问答方案样例",
+        "updatedAt": "2026-07-15",
+        "trustLevel": "verified",
+        "keywords": [
+            "回答格式",
+            "来源引用",
+            "拒答"
+        ],
+        "similarQuestions": [
+            "AI 应该怎么回答",
+            "问答格式是什么",
+            "智能体回答格式有哪些部分"
+        ]
+    }
+]

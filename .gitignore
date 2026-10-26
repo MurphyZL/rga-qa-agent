@@ -1,0 +1,19 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+qdrant_storage/
+models/
+
+# 运行产生的审计、反馈和评测报告，可能包含用户标识，不要提交。
+data/audit.jsonl
+data/eval_report.json
+data/feedback_likes.json
+data/feedback_likes_pending.json
+data/feedback_dislikes.json
+
+# 知识配图默认不入库，避免把内部截图提交到公开仓库。
+web/knowledge-images/
